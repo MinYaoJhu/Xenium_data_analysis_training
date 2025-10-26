@@ -32,7 +32,9 @@ By the end of the course, you will be able to:
 
 ### **Week 1 – Data Overview & Loading**
 Focus: Learn Xenium file structure and how to import data into R using `LoadXenium()`  
-➡️ [Go to Week 1 Lesson: output files](https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest/analysis/xoa-output-at-a-glance)
+➡️ [Go to Week 1 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week1_data_overview/lesson.md)
+[Xenium Output Files at a Glance](https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest/analysis/xoa-output-at-a-glance)
+
 
 ---
 
