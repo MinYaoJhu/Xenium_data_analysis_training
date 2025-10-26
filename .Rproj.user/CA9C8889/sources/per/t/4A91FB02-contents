@@ -43,12 +43,14 @@ xenium-training/
 
 ### **Week 1 — Data Overview & Loading**
 - Understand Xenium output folder structure (`cells.csv.gz`, `transcripts.csv.gz`, `metadata.json`, etc.)  
-- Load data using `LoadXenium()` in R  
 - Explore metadata and perform basic quality checks  
+- **Start with `analysis_summary.html`** to QC decoding and cell segmentation before diving into R.
+- Explore data interactively using **Xenium Explorer** (Basic)
 
 ### **Week 2 — Visualization & Exploration**
+- Explore data interactively using **Xenium Explorer** (Advanced)
+- Load data using `LoadXenium()` in R  
 - Visualize gene expression with `SpatialFeaturePlot()`  
-- Explore data interactively using **Xenium Explorer**  
 - Export high-quality figures  
 
 ### **Week 3 — Clustering & Dimension Reduction**
@@ -80,7 +82,7 @@ xenium-training/
 
 ## 📚 Recommended Resources
 
-https://www.10xgenomics.com/support/software
+https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest
 
 ---
 
