@@ -36,8 +36,11 @@ Focus: Learn Xenium file structure and how to import data into R using `LoadXeni
 
 References:
 ➡️ [Xenium Output Files at a Glance](https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest/analysis/xoa-output-at-a-glance)
+
 ➡️ [Understanding Xenium Outputs](https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest/analysis/xoa-output-understanding-outputs)
+
 ➡️ [Xenium Explorer Input Files](https://www.10xgenomics.com/support/software/xenium-explorer/latest/tutorials/inputs)
+
 ➡️ [Navigating Xenium Explorer](https://www.10xgenomics.com/support/software/xenium-explorer/latest/tutorials/xe-getting-started-with-xenium-explorer)
 
 ---
