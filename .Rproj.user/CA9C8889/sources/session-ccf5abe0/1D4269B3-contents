@@ -34,7 +34,7 @@ By the end of the course, you will be able to:
 - Understand Xenium output (`cells.csv.gz`, `transcripts.csv.gz`, `metadata.json`, `morphology.ome.tif`)
 - Load data into R using `LoadXenium()`
 - Perform basic quality control and explore metadata  
-➡️ [Go to Week 1 Lesson](../week1_data_overview/lesson.md)
+➡️ [Go to Week 1 Lesson](/Xenium_data_analysis_training/week1_data_overview/lesson.md)
 
 ---
 
