@@ -121,10 +121,6 @@ Enable/disable these from the side panel:
 - Jump to coordinates with **Go to location** (format: `x,y` in µm).
 - Paste multiple ROI coordinates using the **Lasso → Paste coordinates** feature.
 
-### E. Settings & Shortcuts
-- **Tab** = toggle UI; **P** = pan; **=** zoom in; **-** zoom out; **L/R** = lasso tools.
-- Settings allow toggling **tooltips**, **scale axes**, **image navigator**, and the **UI** itself.
-
 ---
 
 ## 5) Export Publication-Quality Images
