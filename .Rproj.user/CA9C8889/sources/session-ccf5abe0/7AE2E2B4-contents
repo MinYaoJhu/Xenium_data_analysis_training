@@ -27,6 +27,7 @@ By the end of this training, you will be able to:
 
 ## 🗂️ Repository Structure
 
+```
 xenium-training/
 ├── README.md ← overview and syllabus
 ├── week1_data_overview/ ← raw data loading & QC
@@ -34,6 +35,7 @@ xenium-training/
 ├── week3_clustering/ ← clustering & dimension reduction
 ├── week4_markers/ ← marker gene detection & interpretation
 └── docs/ ← optional folder for GitHub Pages website
+```
 
 ---
 
