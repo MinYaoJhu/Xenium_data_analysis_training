@@ -40,7 +40,7 @@ Focus: Learn Xenium file structure and how to import data into R using `LoadXeni
 
 ### **Week 2 – Visualization & Exploration**
 Focus: Visualize gene expression spatially with `SpatialFeaturePlot()` and explore interactively in Xenium Explorer  
-➡️ [Go to Week 2 Lesson](https://minyaojhu.github.io/Xenium_data_analysis_training/week2_visualization/lesson.md)
+➡️ [Go to Week 2 Lesson](https://minyaojhu.github.io/Xenium_data_analysis_training/week2_visualization/lesson.html)
 
 ---
 
