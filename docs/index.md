@@ -31,34 +31,27 @@ By the end of the course, you will be able to:
 ## 🗓️ Weekly Syllabus
 
 ### **Week 1 – Data Overview & Loading**
-- Understand Xenium output (`cells.csv.gz`, `transcripts.csv.gz`, `metadata.json`, `morphology.ome.tif`)
-- Load data into R using `LoadXenium()`
-- Perform basic quality control and explore metadata  
-➡️ [Go to Week 1 Lesson](/Xenium_data_analysis_training/week1_data_overview/lesson.md)
+Focus: Learn Xenium file structure and how to import data into R using `LoadXenium()`  
+➡️ [Go to Week 1 Lesson](https://minyaojhu.github.io/Xenium_data_analysis_training/week1_data_overview/lesson.html)
 
 ---
 
 ### **Week 2 – Visualization & Exploration**
-- Use `SpatialFeaturePlot()` to visualize spatial expression patterns  
-- Explore the dataset in **Xenium Explorer**  
-- Export publication-quality figures  
-➡️ [Go to Week 2 Lesson](../week2_visualization/lesson.md)
+Focus: Visualize gene expression spatially with `SpatialFeaturePlot()` and explore interactively in Xenium Explorer  
+➡️ [Go to Week 2 Lesson](https://minyaojhu.github.io/Xenium_data_analysis_training/week2_visualization/lesson.html)
 
 ---
 
 ### **Week 3 – Clustering & Dimension Reduction**
-- Normalize data with `SCTransform()`  
-- Run PCA and UMAP  
-- Identify clusters and visualize them spatially  
-➡️ [Go to Week 3 Lesson](../week3_clustering/lesson.md)
+Focus: Normalize data (`SCTransform()`), perform PCA/UMAP, and identify spatial clusters  
+➡️ [Go to Week 3 Lesson](https://minyaojhu.github.io/Xenium_data_analysis_training/week3_clustering/lesson.html)
 
 ---
 
 ### **Week 4 – Marker Detection & Interpretation**
-- Identify cluster-specific marker genes using `FindAllMarkers()`  
-- Visualize expression using `FeaturePlot()` and `DotPlot()`  
-- Interpret biological meaning of clusters  
-➡️ [Go to Week 4 Lesson](../week4_markers/lesson.md)
+Focus: Identify cluster-specific marker genes with `FindAllMarkers()` and visualize them using `FeaturePlot()` and `DotPlot()`  
+➡️ [Go to Week 4 Lesson](https://minyaojhu.github.io/Xenium_data_analysis_training/week4_markers/lesson.html)
+
 
 ---
 
