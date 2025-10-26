@@ -28,26 +28,57 @@ Low-level image sensor data are compressed into these standardized files so that
 
 ---
 
+### Where your data live (folder layout)
+
+Xenium run folders follow this pattern (one subfolder per selected region):
+
+```
+output/
+└── <yyyymmdd><hhmmss><runName>/
+└── output-<instrumentSN><slideID><regionName><yyyymmdd><hhmmss>/
+├── experiment.xenium
+├── analysis_summary.html
+├── morphology.ome.tif
+├── morphology_focus/
+├── cells.csv.gz / cells.parquet
+├── cells.zarr.zip
+├── cell_boundaries.* / nucleus_boundaries.*
+├── transcripts.parquet / transcripts.zarr.zip
+├── cell_feature_matrix/ (MEX)
+├── cell_feature_matrix.h5
+├── cell_feature_matrix.zarr.zip
+├── metrics_summary.csv
+├── analysis/ (secondary analysis results)
+├── analysis.zarr.zip
+├── gene_panel.json
+├── protein_panel.json (if protein assay used)
+└── aux_outputs/
+```
+
+---
+
 ### 📁 Output Bundle Structure
 
 Each Xenium experiment directory contains one folder per region of interest (ROI).  
 Inside each ROI folder you’ll find the following groups of files:
 
-| **Category** | **File(s)** | **Description** | **Readable in Xenium Explorer?** |
-|---------------|-------------|-----------------|----------------------------------|
-| **Experiment manifest** | `experiment.xenium` | Defines experiment metadata and links all outputs. | ✅ Required |
-| **Interactive summary** | `analysis_summary.html` | HTML dashboard with key QC metrics, plots, and images. | — |
-| **Morphology images** | `morphology.ome.tif` | 3-D DAPI image stack in OME-TIFF format. | ✅ |
-|  | `morphology_focus/` | Multi-focus projections (2-D) for each stain; includes DAPI + additional segmentation channels. | ✅ (for multimodal assay) |
-| **Cell summary** | `cells.csv.gz`, `cells.parquet` | Per-cell metrics: transcript counts, area, morphology stats. | ✅ |
-| **Cell segmentation masks** | `cells.zarr.zip` | Zarr archive containing nucleus + cell masks used for transcript assignment. | ✅ |
-| **Cell boundaries** | `cell_boundaries.csv.gz`, `cell_boundaries.parquet` | Polygon coordinates outlining each cell. | ✅ |
-| **Nucleus boundaries** | `nucleus_boundaries.csv.gz`, `nucleus_boundaries.parquet` | Polygon coordinates outlining each nucleus. | ✅ |
-| **Transcript data** | `transcripts.parquet`, `transcripts.zarr.zip` | Coordinates and gene identity for every detected transcript. | ✅ |
-| **Cell-feature matrix** | `cell_feature_matrix/`, `cell_feature_matrix.h5`, `cell_feature_matrix.zarr.zip` | Sparse matrix of gene × cell counts in multiple formats (MTX / HDF5 / Zarr). | ✅ |
-| **Metric summary** | `metrics_summary.csv` | Global summary of sequencing and decoding metrics. | — |
-| **Secondary analysis** | `analysis/`, `analysis.zarr.zip` | Processed data and derived results (e.g., clustering). | — |
-| **Panels** | `gene_panel.json`, `protein_panel.json` | Gene and (if applicable) protein panel definitions. | — |
+| Category | File(s) | What it provides | Explorer readable? |
+|---|---|---|---|
+| **Manifest** | `experiment.xenium` | JSON with experiment metadata + relative paths to all files. | ✅ (Required) |
+| **QC dashboard** | `analysis_summary.html` | Interactive run summary, decoding + segmentation + analysis tabs. | Openable via Explorer “Sample Information” |
+| **Morphology images** | `morphology.ome.tif` | 3D DAPI Z-stack (pyramidal OME-TIFF, 16-bit). | ✅ |
+|  | `morphology_focus/` | 2D autofocus projections for DAPI and, if used, additional stains (channel-named files in v4.0). | ✅ |
+| **Cells (summary)** | `cells.csv.gz`, `cells.parquet` | Per-cell QC: counts, areas, centroids, segmentation method. | ✅ |
+| **Masks & polygons** | `cells.zarr.zip` | Nucleus + cell **masks** (used for transcript→cell assignment). | ✅ |
+|  | `cell_boundaries.*`, `nucleus_boundaries.*` | Polygon **approximations** of masks for fast visualization. | ✅ |
+| **Transcripts** | `transcripts.parquet`, `transcripts.zarr.zip` | One row per decoded transcript (x,y,z, gene, qv, cell_id, etc.). | ✅ |
+| **Matrices** | `cell_feature_matrix/` (MEX) | Sparse matrix (features × cells) + `features.tsv.gz`, `barcodes.tsv.gz`. | ✅ |
+|  | `cell_feature_matrix.h5` | Same matrix in HDF5 (fast loading). | — |
+|  | `cell_feature_matrix.zarr.zip` | Same matrix in Zarr; Explorer can read. | ✅ |
+| **Metrics** | `metrics_summary.csv` | Key run metrics (decoding + segmentation). | — |
+| **Secondary analysis** | `analysis/`, `analysis.zarr.zip` | PCA/UMAP, clustering (graph + K-means), differential expression. | `analysis.zarr.zip` is ✅ |
+| **Panels** | `gene_panel.json`, `protein_panel.json` | Targets, codewords, probe sets; assay meta. | — |
+| **Auxiliary** | `aux_outputs/` | FOV maps, per-cycle RNA images, overview scan, background images, QC masks. | Some importable (e.g., focus QC masks) |
 
 ---
 
@@ -66,19 +97,53 @@ Additional QC and image files supporting troubleshooting and alignment.
 
 ---
 
-## 2) Read the QC: `analysis_summary.html`
+## 2) Read the QC: `analysis_summary.html` (5 tabs to know)
 
-Open the HTML file in a web browser. Use it to:
-- **Verify run metadata:** panel name, panel design ID, software version
-- **Check detection metrics:** transcripts per cell, % cells with transcripts, top genes
-- **Inspect segmentation quality:** cell counts, size distributions, boundary overlays (if present)
-- **Spot issues quickly:** unusually low transcripts/cell, poor segmentation, or missing files
+Open the HTML (on the instrument, in a browser, or from Explorer → **Sample Information → Analysis**):
+
+- **Summary** — high-level run info (panel, software versions), quick metrics, and overview images.  
+- **Decoding** — Q-score distributions, detection rates, control probes/codewords diagnostics.  
+- **Cell Segmentation** — cell/nucleus counts, size distributions, transcript partitioning.  
+- **Analysis** — if run: normalization, PCA/UMAP, graph-based and K-means clustering, top features.  
+- **Image QC** — galleries: downsampled **RNA cycle/channel** images, morphology stains, autofluorescence/background images.
+
 
 > If secondary analysis wasn’t generated (older runs or disabled setting), this page may be minimal. You can compute clustering later in R.
 
 ---
 
-## 3) Open a Dataset in Xenium Explorer
+## 3) Morphology images (orientation, viewing)
+
+- All morphology images use the **same image coordinate system** (origin at top-left).  
+- `morphology.ome.tif` is a **3D DAPI stack** (useful for segmentation QA or resegmentation).  
+- `morphology_focus/` contains **2D projections** per channel (v4.0 files are channel/marker-named).  
+- View in **Xenium Explorer**; multi-file focus images can also be viewed in **QuPath**, **Napari**, or **Fiji/ImageJ** (open any one file; metadata links the set).
+
+---
+
+## 4) Cells & transcripts (what’s inside the tables)
+
+**`cells.*` columns (core subset):**
+- `cell_id`, `x_centroid`, `y_centroid`, `cell_area`, `nucleus_area`, `nucleus_count`  
+- `transcript_counts` (Q≥20), control counts (neg. probes/codewords, genomic if Prime)  
+- `total_counts` (sum of above), `segmentation_method`
+
+**`nucleus/cell_boundaries.*` (polygons):**
+- `cell_id`, `vertex_x`, `vertex_y`, `label_id`  
+> Polygons are simplified outlines for visualization; **masks** live in `cells.zarr.zip`.
+
+**`transcripts.parquet` columns (core subset):**
+- `transcript_id`, `feature_name` (gene/control), `cell_id` (if assigned), `x_location`, `y_location`, `z_location`, `qv`  
+- `overlaps_nucleus` (0/1), `fov_name`, `nucleus_distance`, `codeword_index`, `codeword_category`, `is_gene`
+
+**Cell-feature matrix (three formats):**
+- **MEX** (`cell_feature_matrix/`), **HDF5** (`.h5`), **Zarr** (`.zarr.zip`)  
+- Features include: **genes**, **negative controls**, **unassigned/deprecated codewords**, and (if used) **protein features** (v4.0).
+
+---
+
+
+## 5) Open a Dataset in Xenium Explorer
 
 **Start the app** → choose one of:
 - **Drag & drop** the `experiment.xenium` file
@@ -95,7 +160,7 @@ Open the HTML file in a web browser. Use it to:
 ---
 
 
-## 4) The Explorer Interface (What You’ll Use Most)
+## 6) The Explorer Interface (What You’ll Use Most)
 
 When the dataset loads, you’ll see the DAPI (nuclei) image by default.
 
@@ -123,7 +188,7 @@ Enable/disable these from the side panel:
 
 ---
 
-## 5) Export Publication-Quality Images
+## 7) Export Publication-Quality Images
 
 Click the **download** button (top-right):
 
@@ -138,23 +203,12 @@ Click the **download** button (top-right):
 
 > UI menus are not included in exports. Use **Settings** to show/hide scale axes or the picture-in-picture navigator.
 
----
-
-## 6) Advanced (Optional)
-
-### Edit the manifest to use custom analyses
-- `experiment.xenium` is JSON. You can edit paths under `images` or `xenium_explorer_files` to point to **custom outputs** (e.g., updated boundaries or matrices).
-- Paths can be **absolute or relative**. Avoid `~` for home expansion in relative paths.
-
-### Large dataset feature limits (older versions)
-- v3.0–3.1 had limits for extremely large matrices (>200M features).  
-- v3.2+ restores most functions for XOA ≥ v3.1 datasets.
 
 ---
 
-## 7) Practice (10–20 min)
+## 8) Practice 
 
-1. **Open** a dataset by dragging `experiment.xenium` into Explorer.  
+1. **Open** Locate and open `experiment.xenium` in Explorer.    
 2. **Find** and open **Sample Information**. Note the panel name, panel design ID, and software versions.  
 3. **Toggle layers**: show Images + Cells + Transcripts; add 1–2 gene layers.  
 4. **Use lasso** (freehand and rectangle) to select an ROI and **inspect transcript counts**.  
@@ -163,7 +217,7 @@ Click the **download** button (top-right):
 
 ---
 
-## 8) Troubleshooting
+## 9) Troubleshooting
 
 - **Nothing shows after opening `.xenium`:** check that all referenced files still exist and that folder paths in `experiment.xenium` are valid.
 - **No transcripts visible:** ensure **Transcripts** layer is enabled and at least one gene is selected; zoom to a region with tissue.
