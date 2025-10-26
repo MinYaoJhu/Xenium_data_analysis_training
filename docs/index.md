@@ -32,7 +32,7 @@ By the end of the course, you will be able to:
 
 ### **Week 1 – Data Overview & Loading**
 Focus: Learn Xenium file structure and how to import data into R using `LoadXenium()`  
-➡️ [Go to Week 1 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/week1_data_overview/lesson.md)
+➡️ [Go to Week 1 Lesson](../week1_data_overview/lesson.md)
 
 ---
 
