@@ -32,13 +32,13 @@ By the end of the course, you will be able to:
 
 ### **Week 1 – Data Overview & Loading**
 Focus: Learn Xenium file structure and how to import data into R using `LoadXenium()`  
-➡️ [Go to Week 1 Lesson](../week1_data_overview/lesson.md)
+➡️ [Go to Week 1 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week1_data_overview/lesson.md)
 
 ---
 
 ### **Week 2 – Visualization & Exploration**
 Focus: Visualize gene expression spatially with `SpatialFeaturePlot()` and explore interactively in Xenium Explorer  
-➡️ [Go to Week 2 Lesson](https://minyaojhu.github.io/Xenium_data_analysis_training/week2_visualization/lesson.html)
+➡️ [Go to Week 2 Lesson](https://minyaojhu.github.io/Xenium_data_analysis_training/blob/main/week2_visualization/lesson.html)
 
 ---
 
