@@ -35,6 +35,7 @@ Focus: Learn Xenium file structure and how to import data into R using `LoadXeni
 ➡️ [Go to Week 1 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week1_data_overview/lesson.md)
 
 References:
+
 - ➡️ [Xenium Output Files at a Glance](https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest/analysis/xoa-output-at-a-glance)
 
 - ➡️ [Understanding Xenium Outputs](https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest/analysis/xoa-output-understanding-outputs)
