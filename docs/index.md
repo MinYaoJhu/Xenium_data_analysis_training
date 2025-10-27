@@ -82,7 +82,7 @@ Focus: Identify cluster-specific marker genes with `FindAllMarkers()` and visual
 
 ## 📚 Recommended Resources
 
-https://www.10xgenomics.com/support/software
+https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest
 
 
 ---
