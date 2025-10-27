@@ -5,7 +5,6 @@
 - Understand Xenium output files
 - Understand `analysis_summary.html`
 - Explore metadata and perform basic QC
-- Open and navigate in **Xenium Explorer**
 
 ---
 
@@ -142,92 +141,15 @@ Open the HTML (on the instrument, in a browser, or from Explorer → **Sample In
 
 ---
 
+## 5) Practice 
 
-## 5) Open a Dataset in Xenium Explorer
-
-**Start the app** → choose one of:
-- **Drag & drop** the `experiment.xenium` file
-- Click **Open New File** and select the `.xenium` file
-- **Open file from path** (paste the full path to `experiment.xenium`)
-
-> ⚠️ The **XOA output files must be in the same directory** as referenced in the manifest (unless you’ve edited paths inside `experiment.xenium`).
-
-**Recent files**
-- The Home page lists up to 100 recent datasets (v4.0+).  
-- Closing a dataset auto-saves the current view as an **unnamed saved view** only for the Recent Files entry.  
-- **Save your view explicitly** if you want a persistent named view (recommended).
-
----
-
-
-## 6) The Explorer Interface (What You’ll Use Most)
-
-When the dataset loads, you’ll see the DAPI (nuclei) image by default.
-
-### A. Sample Information
-- Click **Sample Information** to see **Run**, **Panel**, and **Analysis** metadata.
-- You can open the QC summary (`analysis_summary.html`) from here in a separate window.
-
-### B. Layers (Images / Cells / Transcripts)
-Enable/disable these from the side panel:
-- **Images**: Adjust brightness/contrast; select z-planes or focus projections; import & align images if needed.
-- **Cells**: Show nuclei/cell boundaries (filled, outlined, or both).
-- **Transcripts**: Toggle gene(s); points represent decoded transcripts.
-
-> 💡 Combine layers: e.g. **Cells + Transcripts** to see per-cell transcript distributions; or **Images + Transcripts** to compare morphology context.
-
-### C. Lasso Tools (ROI selection & export)
-- **Rectangle (R)** or **Freehand (L)** to select a region.
-- Selection pane shows counts for **transcripts** (by selected genes) and **cells** in the ROI.  
-- Very large selections may hide transcript counts for performance—zoom in or make smaller ROIs.
-- You can **export ROI** info (see “Export Regions of Interest” from the help menu).
-
-### D. Go to Location
-- Jump to coordinates with **Go to location** (format: `x,y` in µm).
-- Paste multiple ROI coordinates using the **Lasso → Paste coordinates** feature.
-
----
-
-## 7) Export Publication-Quality Images
-
-Click the **download** button (top-right):
-
-- **Quick Export Image**  
-  Exports what you see in the viewport as a PNG (fast snapshots).
-
-- **High Resolution Image Export** (v3.2+)  
-  Exports a stitched high-res PNG matching the viewport aspect ratio.  
-  - When zoomed in, Explorer fetches tiles at **max zoom** to maximize detail.  
-  - When zoomed out, it renders at ~32× current level to preserve content.  
-  - **Tip:** Increase *Transcript point size scale* before export so points remain visible.
-
-> UI menus are not included in exports. Use **Settings** to show/hide scale axes or the picture-in-picture navigator.
-
-
----
-
-## 8) Practice 
-
-1. **Open** Locate and open `experiment.xenium` in Explorer.    
-2. **Find** and open **Sample Information**. Note the panel name, panel design ID, and software versions.  
-3. **Toggle layers**: show Images + Cells + Transcripts; add 1–2 gene layers.  
-4. **Use lasso** (freehand and rectangle) to select an ROI and **inspect transcript counts**.  
-5. **Export** a **Quick** image and a **High-Res** image (include scale axes).  
-6. **Open** `analysis_summary.html` and write down 2–3 QC observations (e.g., median transcripts per cell, top markers, segmentation quality).
-
----
-
-## 9) Troubleshooting
-
-- **Nothing shows after opening `.xenium`:** check that all referenced files still exist and that folder paths in `experiment.xenium` are valid.
-- **No transcripts visible:** ensure **Transcripts** layer is enabled and at least one gene is selected; zoom to a region with tissue.
-- **Slow exports or missing points in high-res export:** increase the **Transcript point size scale**; be patient while tiles render.
-- **Empty `/analysis` or missing clustering:** it may not have been run onboard; you can compute clustering later (Week 3) or re-run **Xenium Ranger** to populate `/analysis`.
+**Open** `analysis_summary.html` and write down 2–3 QC observations (e.g., median transcripts per cell, top markers, segmentation quality).
 
 ---
 
 ### Next (Week 2)
-We’ll start **visualizing genes** programmatically (R), reproduce key Explorer views, and standardize figure exports.
+
+- Open and navigate in **Xenium Explorer**
 
 ---
 

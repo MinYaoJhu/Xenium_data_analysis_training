@@ -45,15 +45,15 @@ xenium-training/
 - Understand Xenium output folder structure (`cells.csv.gz`, `transcripts.csv.gz`, `metadata.json`, etc.)  
 - Explore metadata and perform basic quality checks  
 - **Start with `analysis_summary.html`** to QC decoding and cell segmentation before diving into R.
-- Explore data interactively using **Xenium Explorer** (Basic)
 
 ### **Week 2 — Visualization & Exploration**
+- Explore data interactively using **Xenium Explorer** (Basic)
 - Explore data interactively using **Xenium Explorer** (Advanced)
-- Load data using `LoadXenium()` in R  
-- Visualize gene expression with `SpatialFeaturePlot()`  
 - Export high-quality figures  
 
 ### **Week 3 — Clustering & Dimension Reduction**
+- Load data using `LoadXenium()` in R  
+- Visualize gene expression
 - Normalize data with `SCTransform()`  
 - Perform PCA and UMAP embedding  
 - Identify clusters and visualize them spatially  

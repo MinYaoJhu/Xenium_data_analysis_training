@@ -31,7 +31,7 @@ By the end of the course, you will be able to:
 ## 🗓️ Weekly Syllabus
 
 ### **Week 1 – Data Overview & Loading**
-Focus: Learn Xenium file structure and how to import data into R using `LoadXenium()`  
+Focus: Learn Xenium file structure 
 ➡️ [Go to Week 1 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week1_data_overview/lesson.md)
 
 References:
@@ -40,20 +40,23 @@ References:
 
 - ➡️ [Understanding Xenium Outputs](https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest/analysis/xoa-output-understanding-outputs)
 
+
+---
+
+### **Week 2 – Visualization & Exploration**
+Focus: explore interactively in Xenium Explorer  
+➡️ [Go to Week 2 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week2_visualization/lesson.md)
+
+References:
+
 - ➡️ [Xenium Explorer Input Files](https://www.10xgenomics.com/support/software/xenium-explorer/latest/tutorials/inputs)
 
 - ➡️ [Navigating Xenium Explorer](https://www.10xgenomics.com/support/software/xenium-explorer/latest/tutorials/xe-getting-started-with-xenium-explorer)
 
 ---
 
-### **Week 2 – Visualization & Exploration**
-Focus: Visualize gene expression spatially with `SpatialFeaturePlot()` and explore interactively in Xenium Explorer  
-➡️ [Go to Week 2 Lesson](https://minyaojhu.github.io/Xenium_data_analysis_training/week2_visualization/lesson.html)
-
----
-
 ### **Week 3 – Clustering & Dimension Reduction**
-Focus: Normalize data (`SCTransform()`), perform PCA/UMAP, and identify spatial clusters  
+Focus: how to import data into R using `LoadXenium()`, Normalize data (`SCTransform()`), perform PCA/UMAP, and identify spatial clusters  
 ➡️ [Go to Week 3 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week3_clustering/lesson.md)
 
 ---
