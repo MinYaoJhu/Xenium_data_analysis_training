@@ -67,7 +67,7 @@ xenium.obj
 
 > Extra assays BlankCodeword / ControlCodeword / ControlProbe are control targets from Xenium for QC (background/negative controls).
 
-
+```
 xenium.obj
 ├── assays
 │    └── "Xenium"            → counts of each gene per cell
@@ -81,6 +81,7 @@ xenium.obj
 ├── active.assay            → name of currently active assay ("Xenium")
 │
 └── commands                → log of Seurat processing steps
+```
 
 ### 1. Assays
 
