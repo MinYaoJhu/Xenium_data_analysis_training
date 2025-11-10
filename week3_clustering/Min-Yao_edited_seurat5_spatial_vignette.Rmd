@@ -1,0 +1,492 @@
+---
+title: "Min-Yao edited Analysis of Image-based Spatial Data in Seurat"
+output:
+  html_document: 
+    theme: united
+    df_print: kable
+    keep_md: true
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+------------------------------------------------------------------------
+
+```{r setup, include=FALSE}
+all_times <- list()  # store the time for each chunk
+knitr::knit_hooks$set(time_it = local({
+  now <- NULL
+  function(before, options) {
+    if (before) {
+      now <<- Sys.time()
+    } else {
+      res <- difftime(Sys.time(), now, units = "secs")
+      all_times[[options$label]] <<- res
+    }
+  }
+}))
+knitr::opts_chunk$set(
+  tidy = TRUE,
+  tidy.opts = list(width.cutoff = 95),
+  message = FALSE,
+  warning = FALSE,
+  time_it = TRUE,
+  error = TRUE
+)
+```
+
+# Overview
+
+In this vignette, we introduce a Seurat extension to analyze new types of spatially-resolved data. We have [previously introduced a spatial framework](https://satijalab.org/seurat/articles/spatial_vignette.html) which is compatible with sequencing-based technologies, like the 10x Genomics Visium system, or SLIDE-seq. Here, we extend this framework to analyze new data types that are captured via highly multiplexed imaging. In contrast to sequencing-based technologies, these datasets are often targeted (i.e. they profile a pre-selected set of genes). However they can resolve individual molecules - retaining single-cell (and subcellular) resolution. These approaches also often capture cellular boundaries (segmentations).
+
+We update the Seurat infrastructure to enable the analysis, visualization, and exploration of these exciting datasets. In this vignette, we focus on three datasets produced by different multiplexed imaging technologies, each of which is publicly available. We will be adding support for additional imaging-based technologies in the coming months.
+
+-   Vizgen MERSCOPE (Mouse Brain)
+-   Nanostring CosMx Spatial Molecular Imager (FFPE Human Lung)
+-   Akoya CODEX (Human Lymph Node)
+
+First, we load the packages necessary for this vignette.
+
+```{r init, message=FALSE, warning=FALSE}
+library(Seurat)
+library(future)
+plan("multisession", workers = 2)
+library(ggplot2)
+set.seed(2)
+```
+
+# Mouse Brain: 10x Genomics Xenium In Situ
+
+In this section we'll analyze data produced by the Xenium platform. The vignette demonstrates how to load the per-transcript location data, cell x gene matrix, cell segmentation, and cell centroid information available in the Xenium outputs. The resulting Seurat object will contain the gene expression profile of each cell, the centroid and boundary of each cell, and the location of each individual detected transcript. The per-cell gene expression profiles are similar to standard single-cell RNA-seq and can be analyzed using the same tools.
+
+This uses the `Tiny subset` dataset from 10x Genomics provided in the [Fresh Frozen Mouse Brain for Xenium Explorer Demo](https://www.10xgenomics.com/resources/datasets/fresh-frozen-mouse-brain-for-xenium-explorer-demo-1-standard) which can be downloaded as described below. These analysis steps are also compatible with the larger `Full coronal section`, but will take longer to execute.
+
+```{bash, eval=FALSE}
+# wget https://cf.10xgenomics.com/samples/xenium/1.0.2/Xenium_V1_FF_Mouse_Brain_Coronal_Subset_CTX_HP/Xenium_V1_FF_Mouse_Brain_Coronal_Subset_CTX_HP_outs.zip
+# unzip Xenium_V1_FF_Mouse_Brain_Coronal_Subset_CTX_HP_outs.zip
+```
+
+First we read in the dataset and create a Seurat object. Provide the path to the data folder for a Xenium run as the input path. The RNA data is stored in the `Xenium` assay of the Seurat object. This step should take about a minute (you can improve this by installing `arrow` and `hdf5r`).
+
+```{r load.xenium, results='hide'}
+path <- "Xenium_V1_FF_Mouse_Brain_Coronal_Subset_CTX_HP_outs"
+
+# Load the Xenium data
+xenium.obj <- LoadXenium(path, fov = "fov", segmentations = "cell")
+
+# remove cells with 0 counts
+xenium.obj <- subset(xenium.obj, subset = nCount_Xenium > 0)
+xenium.obj
+```
+
+> 36553 samples = 36,553 cells (segments).
+
+> 541 features total across all assays; the active Xenium assay has 248 gene targets (it’s a targeted panel).
+
+> 0 variable features → you haven’t run SCTransform() or FindVariableFeatures() yet.
+
+> Extra assays BlankCodeword / ControlCodeword / ControlProbe are control targets from Xenium for QC (background/negative controls).
+
+
+xenium.obj
+├── assays
+│    └── "Xenium"            → counts of each gene per cell
+│
+├── meta.data               → per-cell metadata (cell area, nCount, etc.)
+│
+├── reductions              → dimensionality reductions (PCA, UMAP, etc.)
+│
+├── images (FOVs)           → spatial fields of view (fov, crop, zoom)
+│
+├── active.assay            → name of currently active assay ("Xenium")
+│
+└── commands                → log of Seurat processing steps
+
+### 1. Assays
+
+```{r}
+xenium.obj[["Xenium"]]
+```
+
+| Slot           | Description                                      |
+| -------------- | ------------------------------------------------ |
+| `counts`       | raw molecule counts (genes × cells)              |
+| `data`         | normalized expression (after `SCTransform` etc.) |
+| `scale.data`   | scaled data used for PCA                         |
+| `var.features` | variable genes selected for modeling             |
+
+```{r}
+counts <- GetAssayData(xenium.obj, assay = "Xenium", slot = "counts")
+dim(counts)  # genes × cells
+```
+
+> genes × cells.
+
+### 2. Meta data
+
+```{r}
+head(xenium.obj@meta.data)
+
+```
+
+A data.frame where each row is a cell and each column is a property, e.g.:
+
+| column                               | meaning                                   |
+| ------------------------------------ | ----------------------------------------- |
+| `nCount_Xenium`                      | total transcript count per cell           |
+| `nFeature_Xenium`                    | number of genes detected                  |
+| `centroid_x`, `centroid_y`           | centroid coordinates                      |
+
+
+```{r}
+xenium.obj$new_metric <- xenium.obj$nCount_Xenium / xenium.obj$nFeature_Xenium
+head(xenium.obj@meta.data)
+colnames(xenium.obj@meta.data)
+```
+
+```{r}
+# List available FOVs
+Images(xenium.obj)
+
+# Access the main field of view
+fov_data <- xenium.obj[["fov"]]
+fov_data
+```
+
+```{r}
+centroids <- GetTissueCoordinates(fov_data, which = "centroids")
+head(centroids)
+
+```
+
+```{r}
+centroids <- GetTissueCoordinates(xenium.obj[["fov"]], which = "centroids")
+colnames(centroids) <- c("centroid_x", "centroid_y")
+
+# Add to meta.data
+xenium.obj@meta.data <- cbind(xenium.obj@meta.data, centroids[Cells(xenium.obj), ])
+head(xenium.obj@meta.data[, c("centroid_x", "centroid_y")])
+```
+
+### 3. Images (spatial fields of view)
+
+```{r}
+xenium.obj@images
+
+```
+
+## 🧭 Typical navigation cheatsheet
+
+| What you want        | Command                                                          |
+| -------------------- | ---------------------------------------------------------------- |
+| List assays          | `Assays(xenium_obj)`                                             |
+| Active assay         | `DefaultAssay(xenium_obj)`                                       |
+| Get counts           | `GetAssayData(xenium_obj, slot = "counts")`                      |
+| Get normalized data  | `GetAssayData(xenium_obj, slot = "data")`                        |
+| Metadata table       | `xenium_obj@meta.data`                                           |
+| Feature (gene) names | `rownames(xenium_obj)`                                           |
+| Cell (barcode) names | `colnames(xenium_obj)`                                           |
+| Image names          | `Images(xenium_obj)`                                             |
+| Inspect one image    | `xenium_obj[["fov"]]`                                            |
+| Centroid coordinates | `GetTissueCoordinates(xenium_obj[["fov"]], which = "centroids")` |
+
+
+🧠 Conceptually
+
+The assay holds expression (how much of each gene).
+
+The images hold location (where each cell/molecule is).
+
+The metadata links those (what each cell is or belongs to).
+
+The reductions summarize global patterns (clusters, UMAP).
+
+Together, they make Seurat powerful for spatial + molecular integration.
+
+
+Spatial information is loaded into slots of the Seurat object, labelled by the name of "field of view" (FOV) being loaded. Initially all the data is loaded into the FOV named `fov`. Later, we will make a cropped FOV that zooms into a region of interest.
+
+Standard QC plots provided by Seurat are available via the `Xenium` assay. Here are violin plots of genes per cell (`nFeature_Xenium`) and transcript counts per cell (`nCount_Xenium`)
+
+```{r vlnplot.xenium}
+VlnPlot(xenium.obj, features = c("nFeature_Xenium", "nCount_Xenium"), ncol = 2, pt.size = 0)
+```
+
+```{r}
+VlnPlot(
+  xenium.obj,
+  features = c("nCount_Xenium", "nCount_BlankCodeword",
+               "nCount_ControlCodeword", "nCount_ControlProbe"),
+  ncol = 2, pt.size = 0
+)
+
+```
+
+
+> What the two violins mean
+
+* nFeature_Xenium = number of detected genes per cell (how many targets were seen at least once).
+
+* nCount_Xenium = total transcripts/UMIs per cell (sequencing/imaging depth per cell).
+
+Each violin shows the distribution across cells (or across identities if you’ve set Idents(xenium.obj)). Wide parts = many cells at that value; long tails = a few extreme cells.
+
+```{r}
+library(ggplot2)
+
+# Example data-driven cutoffs (tweak these!)
+min_feats  <- quantile(xenium.obj$nFeature_Xenium, 0.01, na.rm = TRUE)
+max_counts <- quantile(xenium.obj$nCount_Xenium,   0.99, na.rm = TRUE)
+
+p <- VlnPlot(
+  xenium.obj,
+  features = c("nFeature_Xenium", "nCount_Xenium"),
+  ncol = 2,
+  pt.size = 0.1  # show a few points
+) +
+  geom_hline(yintercept = min_feats,  linetype = "dashed", colour = "red") +
+  geom_hline(yintercept = max_counts, linetype = "dashed", colour = "orange")
+
+p
+
+```
+
+```{r}
+xenium.obj[["Xenium"]]
+```
+
+
+```{r}
+rownames(xenium.obj)
+```
+
+
+Next, we plot the positions of the pan-inhibitory neuron marker Gad1, inhibitory neuron sub-type markers Pvalb, and Sst, and astrocyte marker Gfap on the tissue using `ImageDimPlot()`.
+
+```{r p2.xenium, fig.width=10, fig.height=8}
+ImageDimPlot(xenium.obj, fov = "fov", molecules = c("Gad1", "Sst", "Pvalb", "Gfap"), nmols = 20000)
+```
+
+```{r save.img, include=FALSE}
+plot <- ImageDimPlot(
+  xenium.obj,
+  fov = "fov",
+  molecules = c("Gad1", "Gfap"),
+  nmols = 40000,
+  alpha = 0.01,
+  dark.background = F,
+  mols.alpha = 0.6
+) + coord_flip() + scale_x_reverse() + NoLegend()
+ggsave(
+  filename = "spatial_vignette_2.jpg",
+  height = 5,
+  width = 9,
+  plot = plot
+)
+plot
+```
+
+Here we visualize the expression level of some key layer marker genes at the per-cell level using `ImageFeaturePlot()` which is analogous to the `FeaturePlot()` function for visualizing expression on a 2D embedding. We manually adjust the `max.cutoff` for each gene to roughly the 90th percentile (which can be specified with `max.cutoff='q90'`) of it's count distribution to improve contrast.
+
+```{r mat.xenium, message=FALSE, warning=FALSE, fig.width=12, fig.height=12}
+ImageFeaturePlot(
+  xenium.obj,
+  features = c("Cux2", "Rorb", "Bcl11b", "Foxp2"),
+  max.cutoff = c(25, 35, 12, 10),
+  size = 0.75,
+  cols = c("white", "red")
+)
+```
+
+We can zoom in on a chosen area with the `Crop()` function. Once zoomed-in, we can visualize cell segmentation boundaries along with individual molecules.
+
+
+```{r cropping.xenium, message=FALSE, warning=FALSE, fig.width=10, fig.height=8}
+# allow up to 4 GB for globals shipped to workers
+old_opts <- options(future.globals.maxSize = 4 * 1024^3)  # bytes
+on.exit(options(old_opts), add = TRUE)
+
+
+cropped.coords <- Crop(
+  xenium.obj[["fov"]],
+  x = c(1200, 2900),
+  y = c(3750, 4550),
+  coords = "plot"
+)
+
+xenium.obj[["zoom"]] <- cropped.coords
+
+# visualize cropped area with cell segmentations & selected molecules
+DefaultBoundary(xenium.obj[["zoom"]]) <- "segmentation"
+ImageDimPlot(
+  xenium.obj,
+  fov = "zoom",
+  axes = TRUE,
+  border.color = "white",
+  border.size = 0.1,
+  cols = "polychrome",
+  coord.fixed = FALSE,
+  molecules = c("Gad1", "Sst", "Npy2r", "Pvalb", "Nrn1"),
+  nmols = 10000
+)
+```
+
+Next, we use SCTransform for normalization followed by standard dimensionality reduction and clustering. This step takes about 5 minutes from start to finish.
+
+### 1) SCTransform(xenium.obj, assay = "Xenium")
+
+```{r}
+# 1) Normalize & model with SCTransform on the Xenium assay
+xenium.obj <- SCTransform(xenium.obj, assay = "Xenium")
+```
+
+What it does:
+
+*Normalizes counts using a regularized negative binomial model (removes depth effects), identifies variable features, and stores transformed data.
+
+*You don’t need NormalizeData() or ScaleData() afterwards—SCTransform() replaces them.
+
+Where it goes:
+
+*By default, it creates an assay named "SCT" (derived from your input assay "Xenium"), sets DefaultAssay(xenium.obj) <- "SCT", and stores:
+
+*SCT@counts (copied or corrected counts),
+
+*SCT@data (Pearson-residual-like normalized values),
+
+*SCT@scale.data (residuals used for PCA),
+
+variable genes in VariableFeatures(xenium.obj).
+
+> Tip: check with Assays(xenium.obj) and DefaultAssay(xenium.obj) right after.
+
+```{r}
+# sanity checks
+Assays(xenium.obj)              # expect "Xenium" and new "SCT"
+DefaultAssay(xenium.obj)        # expect "SCT"
+length(VariableFeatures(xenium.obj))
+```
+
+### 2) RunPCA(xenium.obj, npcs = 30, features = rownames(xenium.obj))
+
+```{r}
+# 2) PCA
+xenium.obj <- RunPCA(xenium.obj, npcs = 30, features = rownames(xenium.obj))
+```
+
+
+What it does:
+
+*Computes PCA on the (SCT) data.
+
+*features = rownames(xenium.obj) means “use all features of the default assay.” Since SCTransform set the default to SCT, you’re using all SCT features (not just variable ones).
+
+Where it goes:
+
+*Saves a reduction called "pca" in xenium.obj@reductions$pca.
+
+*Loadings and embeddings available via Loadings(xenium.obj, "pca") and Embeddings(xenium.obj, "pca").
+
+> Tip: Usually you’d use only variable features: features = VariableFeatures(xenium.obj) for single cell data. Using all features on a targeted panel is often fine for xenium.
+
+```{r}
+Loadings(xenium.obj, "pca")
+Embeddings(xenium.obj, "pca")
+```
+
+
+
+### 3) RunUMAP(xenium.obj, dims = 1:30)
+
+```{r}
+# 3) UMAP (tune per ElbowPlot)
+xenium.obj <- RunUMAP(xenium.obj, dims = 1:30)
+```
+
+What it does:
+
+Runs UMAP on the PCA embeddings for PCs 1–30 (the default reduction = "pca").
+
+UMAP is stochastic; set a seed for reproducibility.
+
+Where it goes:
+
+Saves a reduction called "umap" in xenium.obj@reductions$umap.
+
+Coordinates via Embeddings(xenium.obj, "umap").
+
+> Tip: choose the number of PCs with an elbow plot or variance explained, not always “30”.
+
+```{r}
+# quick diagnostic: how many PCs are useful?
+ElbowPlot(xenium.obj, ndims = 30)
+```
+
+
+### 4) FindNeighbors(xenium.obj, reduction = "pca", dims = 1:30)
+
+```{r}
+# 4) Neighbours
+xenium.obj <- FindNeighbors(xenium.obj, reduction = "pca", dims = 1:30)
+```
+
+
+What it does:
+
+Builds a kNN graph in PCA space (default k = 20).
+
+Computes shared-nearest-neighbour (SNN) graph used by clustering.
+
+Where it goes:
+
+Stores graphs in xenium.obj@graphs, typically names like SCT_nn and SCT_snn (prefix from default assay).
+
+
+
+### 5) FindClusters(xenium.obj, resolution = 0.3)
+
+```{r unsupervised.xenium, results='hide'}
+# 5) Clusters
+xenium.obj <- FindClusters(xenium.obj, resolution = 0.3)
+```
+
+What it does:
+
+Community detection (Louvain/Leiden) on the SNN graph to assign cluster IDs.
+
+Where it goes:
+
+Sets Idents(xenium.obj) to cluster labels and adds a seurat_clusters column in xenium.obj@meta.data.
+
+> Tip: resolution controls cluster granularity. Try a small grid (e.g., 0.2–1.0) and compare.
+
+We can then visualize the results of the clustering by coloring each cell according to its cluster either in UMAP space with `DimPlot()` or overlaid on the image with `ImageDimPlot()`.
+
+```{r umap.xenium, fig.width=10, fig.height=7}
+DimPlot(xenium.obj)
+```
+
+We can visualize the expression level of the markers we looked at earlier on the UMAP coordinates.
+
+```{r features.xenium, fig.width=8, fig.height=10}
+FeaturePlot(xenium.obj, features = c("Cux2", "Bcl11b", "Foxp2", "Gad1", "Sst", "Gfap"))
+```
+
+We can now use `ImageDimPlot()` to color the cell positions colored by the cluster labels determined in the previous step.
+
+```{r clusters.xenium, fig.width=13, fig.height=13}
+ImageDimPlot(xenium.obj, cols = "polychrome", size = 0.75)
+```
+
+
+<details>
+
+<summary>**Session Info**</summary>
+
+```{r}
+sessionInfo()
+```
+
+</details>
+
+```{r save.times, include=FALSE}
+write.csv(x = t(as.data.frame(all_times)), file = "seurat5_spatial_vignette_2.csv")
+```
