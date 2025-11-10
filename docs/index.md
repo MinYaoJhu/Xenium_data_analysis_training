@@ -57,7 +57,7 @@ References:
 
 ### **Week 3 – Clustering & Dimension Reduction**
 Focus: how to import data into R using `LoadXenium()`, Normalize data (`SCTransform()`), perform PCA/UMAP, and identify spatial clusters  
-➡️ [Go to Week 3 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week3_clustering/lesson.md)
+➡️ [Go to Week 3 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week3_clustering/Min-Yao_edited_seurat5_spatial_vignette.md)
 
 ---
 
