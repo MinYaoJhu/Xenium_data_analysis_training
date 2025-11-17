@@ -5,7 +5,7 @@ output:
     theme: united
     df_print: kable
     keep_md: true
-date: 'Compiled: November 10, 2025'
+date: 'Compiled: November 17, 2025'
 ---
 
 ------------------------------------------------------------------------
@@ -490,237 +490,12 @@ ImageDimPlot(xenium.obj, fov = "zoom", axes = TRUE, border.color = "white", bord
 
 Next, we use SCTransform for normalization followed by standard dimensionality reduction and clustering. This step takes about 5 minutes from start to finish.
 
-### 1) SCTransform(xenium.obj, assay = "Xenium")
 
 
 ``` r
-# 1) Normalize & model with SCTransform on the Xenium assay
-xenium.obj <- SCTransform(xenium.obj, assay = "Xenium")
+# Save Seurat object as a single RDS file
+saveRDS(xenium.obj, file = "xenium_xenium_obj.rds")
 ```
-
-```
-## Error in getGlobalsAndPackages(expr, envir = envir, globals = globals): The total size of the 14 globals exported for future expression ('FUN()') is 918.80 MiB. This exceeds the maximum allowed size 500.00 MiB per by R option "future.globals.maxSize". This limit is set to protect against transfering too large objects to parallel workers by mistake, which may not be intended and could be costly. See help("future.globals.maxSize", package = "future") for further explainations and how to adjust or remove this threshold The three largest globals are 'FUN' (848.72 MiB of class 'function'), 'object' (69.61 MiB of class 'numeric') and 'split.cells' (453.29 KiB of class 'list')
-```
-
-What it does:
-
-*Normalizes counts using a regularized negative binomial model (removes depth effects), identifies variable features, and stores transformed data.
-
-*You don’t need NormalizeData() or ScaleData() afterwards—SCTransform() replaces them.
-
-Where it goes:
-
-*By default, it creates an assay named "SCT" (derived from your input assay "Xenium"), sets DefaultAssay(xenium.obj) <- "SCT", and stores:
-
-*SCT@counts (copied or corrected counts),
-
-*SCT@data (Pearson-residual-like normalized values),
-
-*SCT@scale.data (residuals used for PCA),
-
-variable genes in VariableFeatures(xenium.obj).
-
-> Tip: check with Assays(xenium.obj) and DefaultAssay(xenium.obj) right after.
-
-
-``` r
-# sanity checks
-Assays(xenium.obj)  # expect 'Xenium' and new 'SCT'
-```
-
-```
-## [1] "Xenium"          "BlankCodeword"   "ControlCodeword" "ControlProbe"
-```
-
-``` r
-DefaultAssay(xenium.obj)  # expect 'SCT'
-```
-
-```
-## [1] "Xenium"
-```
-
-``` r
-length(VariableFeatures(xenium.obj))
-```
-
-```
-## [1] 0
-```
-
-### 2) RunPCA(xenium.obj, npcs = 30, features = rownames(xenium.obj))
-
-
-``` r
-# 2) PCA
-xenium.obj <- RunPCA(xenium.obj, npcs = 30, features = rownames(xenium.obj))
-```
-
-```
-## Error in `PrepDR5()`:
-## ! No layer matching pattern 'scale.data' not found. Please run ScaleData and retry
-```
-
-
-What it does:
-
-*Computes PCA on the (SCT) data.
-
-*features = rownames(xenium.obj) means “use all features of the default assay.” Since SCTransform set the default to SCT, you’re using all SCT features (not just variable ones).
-
-Where it goes:
-
-*Saves a reduction called "pca" in xenium.obj@reductions$pca.
-
-*Loadings and embeddings available via Loadings(xenium.obj, "pca") and Embeddings(xenium.obj, "pca").
-
-> Tip: Usually you’d use only variable features: features = VariableFeatures(xenium.obj) for single cell data. Using all features on a targeted panel is often fine for xenium.
-
-
-``` r
-Loadings(xenium.obj, "pca")
-```
-
-```
-## Error in `object[[reduction]]`:
-## ! 'pca' not found in this Seurat object
-## 
-```
-
-``` r
-Embeddings(xenium.obj, "pca")
-```
-
-```
-## Error in `object[[reduction]]`:
-## ! 'pca' not found in this Seurat object
-## 
-```
-
-
-
-### 3) RunUMAP(xenium.obj, dims = 1:30)
-
-
-``` r
-# 3) UMAP (tune per ElbowPlot)
-xenium.obj <- RunUMAP(xenium.obj, dims = 1:30)
-```
-
-```
-## Error in `object[[reduction]]`:
-## ! 'pca' not found in this Seurat object
-## 
-```
-
-What it does:
-
-Runs UMAP on the PCA embeddings for PCs 1–30 (the default reduction = "pca").
-
-UMAP is stochastic; set a seed for reproducibility.
-
-Where it goes:
-
-Saves a reduction called "umap" in xenium.obj@reductions$umap.
-
-Coordinates via Embeddings(xenium.obj, "umap").
-
-> Tip: choose the number of PCs with an elbow plot or variance explained, not always “30”.
-
-
-``` r
-# quick diagnostic: how many PCs are useful?
-ElbowPlot(xenium.obj, ndims = 30)
-```
-
-```
-## Error in `object[[reduction]]`:
-## ! 'pca' not found in this Seurat object
-## 
-```
-
-
-### 4) FindNeighbors(xenium.obj, reduction = "pca", dims = 1:30)
-
-
-``` r
-# 4) Neighbours
-xenium.obj <- FindNeighbors(xenium.obj, reduction = "pca", dims = 1:30)
-```
-
-```
-## Error in `object[[reduction]]`:
-## ! 'pca' not found in this Seurat object
-## 
-```
-
-
-What it does:
-
-Builds a kNN graph in PCA space (default k = 20).
-
-Computes shared-nearest-neighbour (SNN) graph used by clustering.
-
-Where it goes:
-
-Stores graphs in xenium.obj@graphs, typically names like SCT_nn and SCT_snn (prefix from default assay).
-
-
-
-### 5) FindClusters(xenium.obj, resolution = 0.3)
-
-
-``` r
-# 5) Clusters
-xenium.obj <- FindClusters(xenium.obj, resolution = 0.3)
-```
-
-```
-## Error in FindClusters.Seurat(xenium.obj, resolution = 0.3): Provided graph.name not present in Seurat object
-```
-
-What it does:
-
-Community detection (Louvain/Leiden) on the SNN graph to assign cluster IDs.
-
-Where it goes:
-
-Sets Idents(xenium.obj) to cluster labels and adds a seurat_clusters column in xenium.obj@meta.data.
-
-> Tip: resolution controls cluster granularity. Try a small grid (e.g., 0.2–1.0) and compare.
-
-We can then visualize the results of the clustering by coloring each cell according to its cluster either in UMAP space with `DimPlot()` or overlaid on the image with `ImageDimPlot()`.
-
-
-``` r
-DimPlot(xenium.obj)
-```
-
-```
-## Error in `DefaultDimReduc()`:
-## ! Unable to find a DimReduc matching one of 'umap', 'tsne', or 'pca'; please specify a dimensional reduction to use
-```
-
-We can visualize the expression level of the markers we looked at earlier on the UMAP coordinates.
-
-
-``` r
-FeaturePlot(xenium.obj, features = c("Cux2", "Bcl11b", "Foxp2", "Gad1", "Sst", "Gfap"))
-```
-
-```
-## Error in `DefaultDimReduc()`:
-## ! Unable to find a DimReduc matching one of 'umap', 'tsne', or 'pca'; please specify a dimensional reduction to use
-```
-
-We can now use `ImageDimPlot()` to color the cell positions colored by the cluster labels determined in the previous step.
-
-
-``` r
-ImageDimPlot(xenium.obj, cols = "polychrome", size = 0.75)
-```
-
-![](Min-Yao_edited_seurat5_spatial_vignette_files/figure-html/clusters.xenium-1.png)<!-- -->
 
 
 <details>
@@ -754,7 +529,7 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ggplot2_4.0.0      future_1.67.0      Seurat_5.3.0       SeuratObject_5.2.0
+## [1] ggplot2_4.0.0      future_1.67.0      Seurat_5.3.1       SeuratObject_5.2.0
 ## [5] sp_2.2-0          
 ## 
 ## loaded via a namespace (and not attached):
@@ -780,7 +555,7 @@ sessionInfo()
 ##  [58] vipor_0.4.7            lmtest_0.9-40          otel_0.2.0            
 ##  [61] beeswarm_0.4.0         httpuv_1.6.16          future.apply_1.20.0   
 ##  [64] goftest_1.2-3          R.oo_1.27.1            glue_1.8.0            
-##  [67] nlme_3.1-168           promises_1.5.0         sf_1.0-21             
+##  [67] nlme_3.1-168           promises_1.5.0         sf_1.0-22             
 ##  [70] grid_4.5.1             Rtsne_0.17             cluster_2.1.8.1       
 ##  [73] reshape2_1.4.4         generics_0.1.4         hdf5r_1.3.12          
 ##  [76] gtable_0.3.6           spatstat.data_3.1-9    tzdb_0.5.0            
@@ -792,17 +567,17 @@ sessionInfo()
 ##  [94] lattice_0.22-7         survival_3.8-3         bit_4.6.0             
 ##  [97] deldir_2.0-4           tidyselect_1.2.1       miniUI_0.1.2          
 ## [100] pbapply_1.7-4          knitr_1.50             gridExtra_2.3         
-## [103] scattermore_1.2        xfun_0.53              matrixStats_1.5.0     
+## [103] scattermore_1.2        xfun_0.54              matrixStats_1.5.0     
 ## [106] stringi_1.8.7          lazyeval_0.2.2         yaml_2.3.10           
 ## [109] evaluate_1.0.5         codetools_0.2-20       tibble_3.3.0          
-## [112] cli_3.6.5              uwot_0.2.3             systemfonts_1.3.1     
-## [115] arrow_21.0.0.1         xtable_1.8-4           reticulate_1.44.0     
+## [112] cli_3.6.5              uwot_0.2.4             systemfonts_1.3.1     
+## [115] arrow_22.0.0           xtable_1.8-4           reticulate_1.44.0     
 ## [118] jquerylib_0.1.4        Rcpp_1.1.0             globals_0.18.0        
 ## [121] spatstat.random_3.4-2  png_0.1-8              ggrastr_1.0.2         
 ## [124] spatstat.univar_3.1-4  parallel_4.5.1         assertthat_0.2.1      
 ## [127] dotCall64_1.2          listenv_0.10.0         viridisLite_0.4.2     
 ## [130] e1071_1.7-16           scales_1.4.0           ggridges_0.5.7        
-## [133] purrr_1.1.0            rlang_1.1.6            cowplot_1.2.0         
+## [133] purrr_1.2.0            rlang_1.1.6            cowplot_1.2.0         
 ## [136] formatR_1.14
 ```
 
