@@ -63,7 +63,7 @@ Focus: how to import data into R using `LoadXenium()`, Normalize data (`SCTransf
 
 ### **Week 4 – Marker Detection & Interpretation**
 Focus: Identify cluster-specific marker genes with `FindAllMarkers()` and visualize them using `FeaturePlot()` and `DotPlot()`  
-➡️ [Go to Week 4 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week4_markers/lesson.md)
+➡️ [Go to Week 4 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week4_markers/Min-Yao_edited_seurat5_spatial_vignette-2.md)
 
 
 ---
