@@ -1,0 +1,2 @@
+"0","# 4) Neighbours"
+"0","xenium.obj <- FindNeighbors(xenium.obj, reduction = ""pca"", dims = 1:30)"

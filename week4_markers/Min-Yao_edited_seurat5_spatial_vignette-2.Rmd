@@ -1,0 +1,269 @@
+---
+title: "Min-Yao edited Analysis of Image-based Spatial Data in Seurat-2"
+output:
+  html_document: 
+    theme: united
+    df_print: kable
+    keep_md: true
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+---
+
+```{r init, message=FALSE, warning=FALSE}
+library(Seurat)
+library(future)
+library(ggplot2)
+library(tidyverse)  # or just library(dplyr)
+set.seed(2)
+
+# 1) Set a larger globals limit BEFORE creating the workers
+options(future.globals.maxSize = 4 * 1024^3)  # 4 GiB
+
+# 2) Now create the multisession plan
+plan("multisession", workers = 2)
+```
+
+```{r load_xenium_obj, message=FALSE, warning=FALSE}
+# If a processed Seurat object already exists, load it.
+# Otherwise stop and tell the user to run the first Rmd.
+
+saved_path <- "../week3_clustering/xenium_xenium_obj.rds"
+
+if (file.exists(saved_path)) {
+  message("Loading existing processed Seurat object...")
+  xenium.obj <- readRDS(saved_path)
+
+} else {
+  stop(
+    "No saved Seurat object found (xenium_xenium_obj.rds).\n",
+    "Please run the previous script to generate and save xenium.obj."
+  )
+}
+
+# Optional sanity check
+xenium.obj
+Assays(xenium.obj)
+DefaultAssay(xenium.obj)
+
+```
+
+
+Next, we use SCTransform for normalization followed by standard dimensionality reduction and clustering. This step takes about 5 minutes from start to finish.
+
+### 1) SCTransform(xenium.obj, assay = "Xenium")
+
+```{r}
+# Temporarily run sequentially to avoid future/globals issues
+future::plan("sequential")
+
+# 1) Normalize & model with SCTransform on the Xenium assay
+xenium.obj <- SCTransform(xenium.obj, assay = "Xenium")
+
+# Switch back to multisession for later steps if you still want it
+future::plan("multisession", workers = 2)
+```
+
+What it does:
+
+*Normalizes counts using a regularized negative binomial model (removes depth effects), identifies variable features, and stores transformed data.
+
+*You don’t need NormalizeData() or ScaleData() afterwards—SCTransform() replaces them.
+
+Where it goes:
+
+*By default, it creates an assay named "SCT" (derived from your input assay "Xenium"), sets DefaultAssay(xenium.obj) <- "SCT", and stores:
+
+*SCT@counts (copied or corrected counts),
+
+*SCT@data (Pearson-residual-like normalized values),
+
+*SCT@scale.data (residuals used for PCA),
+
+variable genes in VariableFeatures(xenium.obj).
+
+> Tip: check with Assays(xenium.obj) and DefaultAssay(xenium.obj) right after.
+
+```{r}
+# sanity checks
+Assays(xenium.obj)              # expect "Xenium" and new "SCT"
+DefaultAssay(xenium.obj)        # expect "SCT"
+length(VariableFeatures(xenium.obj))
+```
+
+### 2) RunPCA(xenium.obj, npcs = 30, features = rownames(xenium.obj))
+
+```{r}
+# 2) PCA
+xenium.obj <- RunPCA(xenium.obj, npcs = 30, features = rownames(xenium.obj))
+```
+
+
+What it does:
+
+*Computes PCA on the (SCT) data.
+
+*features = rownames(xenium.obj) means “use all features of the default assay.” Since SCTransform set the default to SCT, you’re using all SCT features (not just variable ones).
+
+Where it goes:
+
+*Saves a reduction called "pca" in xenium.obj@reductions$pca.
+
+*Loadings and embeddings available via Loadings(xenium.obj, "pca") and Embeddings(xenium.obj, "pca").
+
+> Tip: Usually you’d use only variable features: features = VariableFeatures(xenium.obj) for single cell data. Using all features on a targeted panel is often fine for xenium.
+
+```{r}
+Loadings(xenium.obj, "pca")
+Embeddings(xenium.obj, "pca")
+```
+
+
+
+### 3) RunUMAP(xenium.obj, dims = 1:30)
+
+```{r}
+# 3) UMAP (tune per ElbowPlot)
+xenium.obj <- RunUMAP(xenium.obj, dims = 1:30)
+```
+
+What it does:
+
+Runs UMAP on the PCA embeddings for PCs 1–30 (the default reduction = "pca").
+
+UMAP is stochastic; set a seed for reproducibility.
+
+Where it goes:
+
+Saves a reduction called "umap" in xenium.obj@reductions$umap.
+
+Coordinates via Embeddings(xenium.obj, "umap").
+
+> Tip: choose the number of PCs with an elbow plot or variance explained, not always “30”.
+
+```{r}
+# quick diagnostic: how many PCs are useful?
+ElbowPlot(xenium.obj, ndims = 30)
+```
+
+
+### 4) FindNeighbors(xenium.obj, reduction = "pca", dims = 1:30)
+
+```{r}
+# 4) Neighbours
+xenium.obj <- FindNeighbors(xenium.obj, reduction = "pca", dims = 1:30)
+```
+
+
+What it does:
+
+Builds a kNN graph in PCA space (default k = 20).
+
+Computes shared-nearest-neighbour (SNN) graph used by clustering.
+
+Where it goes:
+
+Stores graphs in xenium.obj@graphs, typically names like SCT_nn and SCT_snn (prefix from default assay).
+
+
+
+### 5) FindClusters(xenium.obj, resolution = 0.3)
+
+```{r unsupervised.xenium, results='hide'}
+# 5) Clusters
+xenium.obj <- FindClusters(xenium.obj, resolution = 0.3)
+```
+
+What it does:
+
+Community detection (Louvain/Leiden) on the SNN graph to assign cluster IDs.
+
+Where it goes:
+
+Sets Idents(xenium.obj) to cluster labels and adds a seurat_clusters column in xenium.obj@meta.data.
+
+> Tip: resolution controls cluster granularity. Try a small grid (e.g., 0.2–1.0) and compare.
+
+We can then visualize the results of the clustering by coloring each cell according to its cluster either in UMAP space with `DimPlot()` or overlaid on the image with `ImageDimPlot()`.
+
+```{r umap.xenium, fig.width=10, fig.height=7}
+DimPlot(xenium.obj)
+```
+
+We can visualize the expression level of the markers we looked at earlier on the UMAP coordinates.
+
+```{r features.xenium, fig.width=8, fig.height=10}
+FeaturePlot(xenium.obj, features = c("Cux2", "Bcl11b", "Foxp2", "Gad1", "Sst", "Gfap"))
+```
+
+We can now use `ImageDimPlot()` to color the cell positions colored by the cluster labels determined in the previous step.
+
+```{r clusters.xenium, fig.width=13, fig.height=13}
+ImageDimPlot(xenium.obj, cols = "polychrome", size = 0.75)
+```
+
+# 6) Find cluster markers (FindAllMarkers)
+
+```{r}
+#Use SCT assay for differential expression
+
+DefaultAssay(xenium.obj) <- "SCT"
+
+#Find markers for all clusters vs all remaining cells
+
+xenium_markers <- FindAllMarkers(
+xenium.obj,
+only.pos = TRUE, # only genes up in each cluster
+logfc.threshold = 0.25, # minimum log2 fold-change
+min.pct = 0.10 # expressed in at least 10% of cells in the cluster
+)
+
+#Quick look
+
+head(xenium_markers)
+
+#Optional: save full table
+
+write.csv(
+xenium_markers,
+file = "xenium_markers_all_clusters.csv",
+row.names = FALSE
+)
+```
+
+```{r}
+top1_markers <- xenium_markers %>%
+  group_by(cluster) %>%
+  slice_max(order_by = avg_log2FC,
+            n = 1,
+            with_ties = FALSE) %>%
+  ungroup()
+
+top1_markers
+```
+
+```{r}
+top1_genes <- top1_markers$gene
+top1_genes
+```
+
+```{r}
+DoHeatmap(
+  xenium.obj,
+  features = top1_genes,
+  group.by = "seurat_clusters" # default when Idents() are clusters
+) +
+  scale_fill_gradientn(colours = c("navy", "white", "red")) +
+  theme(axis.text.y = element_text(size = 8))
+```
+
+
+<details>
+
+<summary>**Session Info**</summary>
+
+```{r}
+sessionInfo()
+```
+
+</details>
+
+

@@ -1,0 +1,8 @@
+"0","top1_markers <- xenium_markers %>%"
+"0","  group_by(cluster) %>%"
+"0","  slice_max(order_by = avg_log2FC,"
+"0","            n = 1,"
+"0","            with_ties = FALSE) %>%"
+"0","  ungroup()"
+"0",""
+"0","top1_markers"

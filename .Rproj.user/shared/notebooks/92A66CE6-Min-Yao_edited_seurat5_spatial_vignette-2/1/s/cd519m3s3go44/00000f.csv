@@ -1,0 +1,7 @@
+"0","DoHeatmap("
+"0","  xenium.obj,"
+"0","  features = top1_genes,"
+"0","  group.by = ""seurat_clusters"" # default when Idents() are clusters"
+"0",") +"
+"0","  scale_fill_gradientn(colours = c(""navy"", ""white"", ""red"")) +"
+"0","  theme(axis.text.y = element_text(size = 8))"

@@ -1,0 +1,2 @@
+"0","# 2) PCA"
+"0","xenium.obj <- RunPCA(xenium.obj, npcs = 30, features = rownames(xenium.obj))"

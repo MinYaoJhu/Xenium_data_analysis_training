@@ -1,0 +1,8 @@
+"0","library(Seurat)"
+"0","library(future)"
+"0","plan(""multisession"", workers = 2)"
+"0","library(ggplot2)"
+"0","set.seed(2)"
+"0",""
+"0","old_opts <- options(future.globals.maxSize = 4 * 1024^3)  # bytes"
+"0","on.exit(options(old_opts), add = TRUE)"
