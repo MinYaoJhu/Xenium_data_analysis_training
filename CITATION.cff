@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use these training materials, please cite them as below."
+title: "Xenium Data Analysis Training: a 4-week course on spatial transcriptomics analysis with R and Xenium Explorer"
+type: software
+version: 1.0.0
+date-released: "2026-11-10"
+abstract: >-
+  Course materials for a 4-week introduction to 10x Genomics Xenium in situ
+  spatial transcriptomics data analysis: Xenium output files and QC, Xenium
+  Explorer, clustering and dimension reduction in Seurat, and marker gene
+  detection, using a public 10x Genomics mouse brain dataset. Notebooks
+  verified with R 4.4.3 and Seurat 5.5.1 (November 2026).
+authors:
+  - family-names: Jhu
+    given-names: Min-Yao
+    affiliation: Donald Danforth Plant Science Center
+    orcid: "https://orcid.org/0000-0002-8654-0977"
+repository-code: "https://github.com/MinYaoJhu/Xenium_data_analysis_training"
+url: "https://minyaojhu.github.io/Xenium_data_analysis_training/"
+license: MIT
+keywords:
+  - spatial transcriptomics
+  - Xenium
+  - Seurat
+  - training
+  - teaching materials
+  - bioinformatics education
