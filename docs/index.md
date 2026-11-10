@@ -1,3 +1,10 @@
+---
+title: Home
+nav_order: 1
+---
+
+<img src="{{ site.baseurl }}/assets/logo.svg" alt="Course logo" width="140" align="right"/>
+
 # 🌿 Xenium Data Analysis Training
 
 Welcome to the **Xenium Data Analysis Training Course**!  
@@ -32,7 +39,7 @@ By the end of the course, you will be able to:
 
 ### **Week 1 – Data Overview & Loading**
 Focus: Learn Xenium file structure 
-➡️ [Go to Week 1 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week1_data_overview/lesson.md)
+➡️ [Go to Week 1 Lesson]({{ site.baseurl }}/week1.html)
 
 References:
 
@@ -45,7 +52,7 @@ References:
 
 ### **Week 2 – Visualization & Exploration**
 Focus: explore interactively in Xenium Explorer  
-➡️ [Go to Week 2 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week2_visualization/lesson.md)
+➡️ [Go to Week 2 Lesson]({{ site.baseurl }}/week2.html)
 
 References:
 
@@ -57,36 +64,24 @@ References:
 
 ### **Week 3 – Clustering & Dimension Reduction**
 Focus: how to import data into R using `LoadXenium()`, Normalize data (`SCTransform()`), perform PCA/UMAP, and identify spatial clusters  
-➡️ [Go to Week 3 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week3_clustering/Min-Yao_edited_seurat5_spatial_vignette.md)
+➡️ [Go to Week 3 Lesson]({{ site.baseurl }}/week3.html)
 
 ---
 
 ### **Week 4 – Marker Detection & Interpretation**
 Focus: Identify cluster-specific marker genes with `FindAllMarkers()` and visualize them using `FeaturePlot()` and `DotPlot()`  
-➡️ [Go to Week 4 Lesson](https://github.com/MinYaoJhu/Xenium_data_analysis_training/blob/main/week4_markers/Min-Yao_edited_seurat5_spatial_vignette-2.md)
+➡️ [Go to Week 4 Lesson]({{ site.baseurl }}/week4.html)
 
 
 ---
 
-## 🧰 Setup Instructions
+## 🧰 Setup
 
-1. **Install R (≥4.3) and RStudio**
-   - [Download R](https://cran.r-project.org/)
-   - [Download RStudio](https://posit.co/download/rstudio-desktop/)
-
-2. **Install Required Packages**
-   ```r
-   install.packages(c("Seurat", "tidyverse", "patchwork"))
-   ```
-   
+See **[Setup & data]({{ site.baseurl }}/setup.html)** for the course dataset, the tested software environment and how to render the notebooks.
 
 ## 📚 Recommended Resources
 
-https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest
+- [Xenium Onboard Analysis documentation](https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest)
+- [Analysis of Image-based Spatial Data in Seurat](https://satijalab.org/seurat/articles/seurat5_spatial_vignette_2) (Satija Lab), on which Weeks 3 and 4 are based
 
 
----
-
-© 2025–2026 Min-Yao Jhu
-Donald Danforth Plant Science Center (course first developed at the Crop Science Centre, University of Cambridge)
-For educational and research training use.

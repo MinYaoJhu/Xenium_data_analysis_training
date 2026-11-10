@@ -8,3 +8,8 @@
 Xenium_V1_FF_Mouse_Brain_Coronal_Subset_CTX_HP_outs/
 *.zip
 *.rds
+
+# Local Jekyll preview builds
+docs/.sass-cache/
+docs/_site/
+docs/.jekyll-cache/

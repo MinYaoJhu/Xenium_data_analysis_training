@@ -1,0 +1,39 @@
+title: Xenium Data Analysis Training
+description: A 4-week course on analyzing 10x Genomics Xenium in situ spatial transcriptomics data with R and Xenium Explorer
+url: "https://minyaojhu.github.io"
+baseurl: "/Xenium_data_analysis_training"
+
+remote_theme: just-the-docs/just-the-docs@v0.12.0
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+  - jekyll-include-cache
+
+logo: "/assets/logo.svg"
+favicon_ico: "/assets/logo.svg"
+color_scheme: light
+search_enabled: true
+heading_anchors: true
+
+aux_links:
+  "GitHub repository": "https://github.com/MinYaoJhu/Xenium_data_analysis_training"
+aux_links_new_tab: true
+
+back_to_top: true
+back_to_top_text: "Back to top"
+
+footer_content: >-
+  © 2025–2026 Min-Yao Jhu · Donald Danforth Plant Science Center
+  (course first developed at the Crop Science Centre, University of Cambridge) ·
+  <a href="https://www.minyaojhu.com">minyaojhu.com</a> · MIT License
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
