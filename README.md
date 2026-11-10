@@ -6,6 +6,7 @@
 ![R](https://img.shields.io/badge/R-4.4.3-276DC3?logo=r&logoColor=white)
 ![Seurat](https://img.shields.io/badge/Seurat-5.5.1-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24114492.svg)](https://doi.org/10.5281/zenodo.24114492)
 
 👉 **Start here: [course website](https://minyaojhu.github.io/Xenium_data_analysis_training/)**, with one page per week, a setup guide and the fully rendered notebooks.
 
@@ -90,7 +91,7 @@ GitHub Pages rebuilds the website from `docs/` after each push.
 
 ## Citation
 
-If you use these materials, please cite them with GitHub's **"Cite this repository"** button (from [`CITATION.cff`](CITATION.cff)).
+If you use these materials, please cite: Jhu M-Y (2026). *Xenium Data Analysis Training: a 4-week course on spatial transcriptomics analysis with R and Xenium Explorer* (v1.0.0). Zenodo. [doi:10.5281/zenodo.24114492](https://doi.org/10.5281/zenodo.24114492). GitHub's **"Cite this repository"** button (from [`CITATION.cff`](CITATION.cff)) gives this in APA and BibTeX formats.
 
 ## AI assistance
 
