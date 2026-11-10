@@ -17,8 +17,11 @@ xen <- FindClusters(xen, resolution = 0.5)
 
 ## 📊 Visualize Clusters
 ```r
-SpatialDimPlot(xen, group.by = "seurat_clusters")
+DimPlot(xen, reduction = "umap", label = TRUE)                       # clusters on the UMAP
+ImageDimPlot(xen, group.by = "seurat_clusters", size = 1.5)          # clusters on the tissue
 ```
+
+> `ImageDimPlot()` is for imaging-based data such as Xenium. `SpatialDimPlot()` is for spot-based Visium data and does not work with Xenium objects.
 
 ## 🧪 Practice
 - Inspect PCs (`VizDimLoadings`, `DimPlot`).  

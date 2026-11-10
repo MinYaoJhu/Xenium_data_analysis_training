@@ -13,9 +13,11 @@ head(markers)
 ```
 
 ## 🎨 Visualize Markers
+Well-known mouse brain markers in this panel: `Cux2` (upper cortical layers), `Bcl11b` (deep cortical layers), `Gad1` (inhibitory neurons) and `Gfap` (astrocytes).
 ```r
-FeaturePlot(xen, features = c("NIN"))
-DotPlot(xen, features = c("ENOD11", "NF-YA1")) + RotatedAxis()
+FeaturePlot(xen, features = c("Cux2", "Bcl11b", "Gad1", "Gfap"))           # on the UMAP
+DotPlot(xen, features = c("Cux2", "Bcl11b", "Gad1", "Gfap")) + RotatedAxis()
+ImageFeaturePlot(xen, features = c("Cux2", "Gad1"), max.cutoff = "q90")   # on the tissue
 ```
 
 ## 🧪 Practice

@@ -87,6 +87,6 @@ https://www.10xgenomics.com/support/software/xenium-onboard-analysis/latest
 
 ---
 
-© 2025 Min-Yao Jhu
-Crop Science Centre, University of Cambridge
+© 2025–2026 Min-Yao Jhu
+Donald Danforth Plant Science Center (course first developed at the Crop Science Centre, University of Cambridge)
 For educational and research training use.

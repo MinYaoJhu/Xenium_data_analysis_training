@@ -1,0 +1,10 @@
+# RStudio / R session files
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Course data and large intermediate objects (download the data as described in Week 3)
+Xenium_V1_FF_Mouse_Brain_Coronal_Subset_CTX_HP_outs/
+*.zip
+*.rds

@@ -8,6 +8,9 @@ output:
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 ---
 
+> **Credit:** this notebook is adapted from the Satija Lab Seurat vignette ["Analysis of Image-based Spatial Data in Seurat"](https://satijalab.org/seurat/articles/seurat5_spatial_vignette_2) (Seurat, MIT License), edited for this training course by Min-Yao Jhu.
+
+
 ```{r init, message=FALSE, warning=FALSE}
 library(Seurat)
 library(future)
