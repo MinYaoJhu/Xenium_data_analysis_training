@@ -34,6 +34,7 @@ knitr::opts_chunk$set(
   time_it = TRUE,
   error = TRUE
 )
+options(pbapply.pb = "none")  # no progress bars in the rendered page
 ```
 
 # Overview
