@@ -119,7 +119,7 @@ xenium.obj[["Xenium"]]
 | `var.features` | variable genes selected for modeling             |
 
 ```{r}
-counts <- GetAssayData(xenium.obj, assay = "Xenium", slot = "counts")
+counts <- GetAssayData(xenium.obj, assay = "Xenium", layer = "counts")
 dim(counts)  # genes × cells
 ```
 
@@ -184,8 +184,8 @@ xenium.obj@images
 | -------------------- | ---------------------------------------------------------------- |
 | List assays          | `Assays(xenium_obj)`                                             |
 | Active assay         | `DefaultAssay(xenium_obj)`                                       |
-| Get counts           | `GetAssayData(xenium_obj, slot = "counts")`                      |
-| Get normalized data  | `GetAssayData(xenium_obj, slot = "data")`                        |
+| Get counts           | `GetAssayData(xenium_obj, layer = "counts")`                      |
+| Get normalized data  | `GetAssayData(xenium_obj, layer = "data")`                        |
 | Metadata table       | `xenium_obj@meta.data`                                           |
 | Feature (gene) names | `rownames(xenium_obj)`                                           |
 | Cell (barcode) names | `colnames(xenium_obj)`                                           |

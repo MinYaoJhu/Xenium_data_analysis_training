@@ -120,8 +120,8 @@ Where it goes:
 > Tip: Usually you’d use only variable features: features = VariableFeatures(xenium.obj) for single cell data. Using all features on a targeted panel is often fine for xenium.
 
 ```{r}
-Loadings(xenium.obj, "pca")
-Embeddings(xenium.obj, "pca")
+head(Loadings(xenium.obj, "pca"))    # first rows; one row per gene
+head(Embeddings(xenium.obj, "pca"))  # first rows; the full matrix has one row per cell
 ```
 
 
