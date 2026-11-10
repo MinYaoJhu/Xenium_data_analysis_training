@@ -5,8 +5,11 @@ output:
     theme: united
     df_print: kable
     keep_md: true
-date: 'Compiled: November 17, 2025'
+date: 'Compiled: November 10, 2026'
 ---
+
+> **Credit:** this notebook is adapted from the Satija Lab Seurat vignette ["Analysis of Image-based Spatial Data in Seurat"](https://satijalab.org/seurat/articles/seurat5_spatial_vignette_2) (Seurat, MIT License), edited for this training course by Min-Yao Jhu.
+
 
 ------------------------------------------------------------------------
 
@@ -108,7 +111,7 @@ xenium.obj[["Xenium"]]
 
 
 ``` r
-counts <- GetAssayData(xenium.obj, assay = "Xenium", slot = "counts")
+counts <- GetAssayData(xenium.obj, assay = "Xenium", layer = "counts")
 dim(counts)  # genes × cells
 ```
 
@@ -127,14 +130,14 @@ head(xenium.obj@meta.data)
 
 <div class="kable-table">
 
-|orig.ident    | nCount_Xenium| nFeature_Xenium| nCount_BlankCodeword| nFeature_BlankCodeword| nCount_ControlCodeword| nFeature_ControlCodeword| nCount_ControlProbe| nFeature_ControlProbe|
-|:-------------|-------------:|---------------:|--------------------:|----------------------:|----------------------:|------------------------:|-------------------:|---------------------:|
-|SeuratProject |           384|              96|                    1|                      1|                      0|                        0|                   0|                     0|
-|SeuratProject |           146|              64|                    0|                      0|                      0|                        0|                   0|                     0|
-|SeuratProject |            81|              48|                    0|                      0|                      0|                        0|                   0|                     0|
-|SeuratProject |           314|              94|                    1|                      1|                      0|                        0|                   0|                     0|
-|SeuratProject |           639|              97|                    1|                      1|                      0|                        0|                   0|                     0|
-|SeuratProject |           270|              90|                    0|                      0|                      0|                        0|                   0|                     0|
+|orig.ident    | nCount_Xenium| nFeature_Xenium|segmentation_method | nCount_BlankCodeword| nFeature_BlankCodeword| nCount_ControlCodeword| nFeature_ControlCodeword| nCount_ControlProbe| nFeature_ControlProbe|
+|:-------------|-------------:|---------------:|:-------------------|--------------------:|----------------------:|----------------------:|------------------------:|-------------------:|---------------------:|
+|SeuratProject |           384|              96|cell                |                    1|                      1|                      0|                        0|                   0|                     0|
+|SeuratProject |           146|              64|cell                |                    0|                      0|                      0|                        0|                   0|                     0|
+|SeuratProject |            81|              48|cell                |                    0|                      0|                      0|                        0|                   0|                     0|
+|SeuratProject |           314|              94|cell                |                    1|                      1|                      0|                        0|                   0|                     0|
+|SeuratProject |           639|              97|cell                |                    1|                      1|                      0|                        0|                   0|                     0|
+|SeuratProject |           270|              90|cell                |                    0|                      0|                      0|                        0|                   0|                     0|
 
 </div>
 
@@ -155,14 +158,14 @@ head(xenium.obj@meta.data)
 
 <div class="kable-table">
 
-|orig.ident    | nCount_Xenium| nFeature_Xenium| nCount_BlankCodeword| nFeature_BlankCodeword| nCount_ControlCodeword| nFeature_ControlCodeword| nCount_ControlProbe| nFeature_ControlProbe| new_metric|
-|:-------------|-------------:|---------------:|--------------------:|----------------------:|----------------------:|------------------------:|-------------------:|---------------------:|----------:|
-|SeuratProject |           384|              96|                    1|                      1|                      0|                        0|                   0|                     0|   4.000000|
-|SeuratProject |           146|              64|                    0|                      0|                      0|                        0|                   0|                     0|   2.281250|
-|SeuratProject |            81|              48|                    0|                      0|                      0|                        0|                   0|                     0|   1.687500|
-|SeuratProject |           314|              94|                    1|                      1|                      0|                        0|                   0|                     0|   3.340425|
-|SeuratProject |           639|              97|                    1|                      1|                      0|                        0|                   0|                     0|   6.587629|
-|SeuratProject |           270|              90|                    0|                      0|                      0|                        0|                   0|                     0|   3.000000|
+|orig.ident    | nCount_Xenium| nFeature_Xenium|segmentation_method | nCount_BlankCodeword| nFeature_BlankCodeword| nCount_ControlCodeword| nFeature_ControlCodeword| nCount_ControlProbe| nFeature_ControlProbe| new_metric|
+|:-------------|-------------:|---------------:|:-------------------|--------------------:|----------------------:|----------------------:|------------------------:|-------------------:|---------------------:|----------:|
+|SeuratProject |           384|              96|cell                |                    1|                      1|                      0|                        0|                   0|                     0|   4.000000|
+|SeuratProject |           146|              64|cell                |                    0|                      0|                      0|                        0|                   0|                     0|   2.281250|
+|SeuratProject |            81|              48|cell                |                    0|                      0|                      0|                        0|                   0|                     0|   1.687500|
+|SeuratProject |           314|              94|cell                |                    1|                      1|                      0|                        0|                   0|                     0|   3.340425|
+|SeuratProject |           639|              97|cell                |                    1|                      1|                      0|                        0|                   0|                     0|   6.587629|
+|SeuratProject |           270|              90|cell                |                    0|                      0|                      0|                        0|                   0|                     0|   3.000000|
 
 </div>
 
@@ -172,10 +175,11 @@ colnames(xenium.obj@meta.data)
 
 ```
 ##  [1] "orig.ident"               "nCount_Xenium"           
-##  [3] "nFeature_Xenium"          "nCount_BlankCodeword"    
-##  [5] "nFeature_BlankCodeword"   "nCount_ControlCodeword"  
-##  [7] "nFeature_ControlCodeword" "nCount_ControlProbe"     
-##  [9] "nFeature_ControlProbe"    "new_metric"
+##  [3] "nFeature_Xenium"          "segmentation_method"     
+##  [5] "nCount_BlankCodeword"     "nFeature_BlankCodeword"  
+##  [7] "nCount_ControlCodeword"   "nFeature_ControlCodeword"
+##  [9] "nCount_ControlProbe"      "nFeature_ControlProbe"   
+## [11] "new_metric"
 ```
 
 
@@ -268,8 +272,8 @@ xenium.obj@images
 | -------------------- | ---------------------------------------------------------------- |
 | List assays          | `Assays(xenium_obj)`                                             |
 | Active assay         | `DefaultAssay(xenium_obj)`                                       |
-| Get counts           | `GetAssayData(xenium_obj, slot = "counts")`                      |
-| Get normalized data  | `GetAssayData(xenium_obj, slot = "data")`                        |
+| Get counts           | `GetAssayData(xenium_obj, layer = "counts")`                      |
+| Get normalized data  | `GetAssayData(xenium_obj, layer = "data")`                        |
 | Metadata table       | `xenium_obj@meta.data`                                           |
 | Feature (gene) names | `rownames(xenium_obj)`                                           |
 | Cell (barcode) names | `colnames(xenium_obj)`                                           |
@@ -454,39 +458,16 @@ on.exit(options(old_opts), add = TRUE)
 
 
 cropped.coords <- Crop(xenium.obj[["fov"]], x = c(1200, 2900), y = c(3750, 4550), coords = "plot")
-```
 
-```
-## Error in getGlobalsAndPackages(expr, envir = envir, globals = globals): The total size of the 9 globals exported for future expression ('FUN()') is 540.60 MiB. This exceeds the maximum allowed size 500.00 MiB per by R option "future.globals.maxSize". This limit is set to protect against transfering too large objects to parallel workers by mistake, which may not be intended and could be costly. See help("future.globals.maxSize", package = "future") for further explainations and how to adjust or remove this threshold The three largest globals are 'FUN' (360.31 MiB of class 'function'), 'x' (180.14 MiB of class 'list') and 'over' (141.31 KiB of class 'function')
-```
-
-``` r
 xenium.obj[["zoom"]] <- cropped.coords
-```
 
-```
-## Error: object 'cropped.coords' not found
-```
-
-``` r
 # visualize cropped area with cell segmentations & selected molecules
 DefaultBoundary(xenium.obj[["zoom"]]) <- "segmentation"
-```
-
-```
-## Error in `` `*tmp*`[["zoom"]] ``:
-## ! 'zoom' not found in this Seurat object
-## 
-```
-
-``` r
 ImageDimPlot(xenium.obj, fov = "zoom", axes = TRUE, border.color = "white", border.size = 0.1, cols = "polychrome",
     coord.fixed = FALSE, molecules = c("Gad1", "Sst", "Npy2r", "Pvalb", "Nrn1"), nmols = 10000)
 ```
 
-```
-## Error in ImageDimPlot(xenium.obj, fov = "zoom", axes = TRUE, border.color = "white", : No compatible spatial coordinates present
-```
+![](Min-Yao_edited_seurat5_spatial_vignette_files/figure-html/cropping.xenium-1.png)<!-- -->
 
 Next, we use SCTransform for normalization followed by standard dimensionality reduction and clustering. This step takes about 5 minutes from start to finish.
 
@@ -508,77 +489,72 @@ sessionInfo()
 ```
 
 ```
-## R version 4.5.1 (2025-06-13 ucrt)
-## Platform: x86_64-w64-mingw32/x64
-## Running under: Windows 11 x64 (build 26100)
+## R version 4.4.3 (2025-02-28)
+## Platform: x86_64-conda-linux-gnu
+## Running under: Ubuntu 26.04.1 LTS
 ## 
 ## Matrix products: default
-##   LAPACK version 3.12.1
+## BLAS/LAPACK: <conda env>/lib/libopenblasp-r0.3.34.so;  LAPACK version 3.12.0
 ## 
 ## locale:
-## [1] LC_COLLATE=English_United Kingdom.utf8 
-## [2] LC_CTYPE=English_United Kingdom.utf8   
-## [3] LC_MONETARY=English_United Kingdom.utf8
-## [4] LC_NUMERIC=C                           
-## [5] LC_TIME=English_United Kingdom.utf8    
+##  [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       
+##  [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   
+##  [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          
+## [10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   
 ## 
-## time zone: Europe/London
-## tzcode source: internal
+## time zone: America/Chicago
+## tzcode source: system (glibc)
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ggplot2_4.0.0      future_1.67.0      Seurat_5.3.1       SeuratObject_5.2.0
-## [5] sp_2.2-0          
+## [1] ggplot2_4.0.3      future_1.82.0      Seurat_5.5.1       SeuratObject_5.4.0
+## [5] sp_2.2-3          
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] RColorBrewer_1.1-3     rstudioapi_0.17.1      jsonlite_2.0.0        
-##   [4] magrittr_2.0.4         spatstat.utils_3.2-0   ggbeeswarm_0.7.2      
-##   [7] farver_2.1.2           rmarkdown_2.30         ragg_1.5.0            
-##  [10] vctrs_0.6.5            ROCR_1.0-11            spatstat.explore_3.5-3
-##  [13] htmltools_0.5.8.1      sass_0.4.10            sctransform_0.4.2     
-##  [16] parallelly_1.45.1      KernSmooth_2.23-26     bslib_0.9.0           
-##  [19] htmlwidgets_1.6.4      ica_1.0-3              plyr_1.8.9            
-##  [22] plotly_4.11.0          zoo_1.8-14             cachem_1.1.0          
-##  [25] igraph_2.2.1           mime_0.13              lifecycle_1.0.4       
-##  [28] pkgconfig_2.0.3        Matrix_1.7-4           R6_2.6.1              
-##  [31] fastmap_1.2.0          fitdistrplus_1.2-4     shiny_1.11.1          
-##  [34] digest_0.6.37          patchwork_1.3.2        tensor_1.5.1          
-##  [37] RSpectra_0.16-2        irlba_2.3.5.1          textshaping_1.0.4     
-##  [40] labeling_0.4.3         progressr_0.18.0       spatstat.sparse_3.1-0 
-##  [43] httr_1.4.7             polyclip_1.10-7        abind_1.4-8           
-##  [46] compiler_4.5.1         proxy_0.4-27           bit64_4.6.0-1         
-##  [49] withr_3.0.2            S7_0.2.0               DBI_1.2.3             
-##  [52] fastDummies_1.7.5      R.utils_2.13.0         MASS_7.3-65           
-##  [55] classInt_0.4-11        units_1.0-0            tools_4.5.1           
-##  [58] vipor_0.4.7            lmtest_0.9-40          otel_0.2.0            
-##  [61] beeswarm_0.4.0         httpuv_1.6.16          future.apply_1.20.0   
-##  [64] goftest_1.2-3          R.oo_1.27.1            glue_1.8.0            
-##  [67] nlme_3.1-168           promises_1.5.0         sf_1.0-22             
-##  [70] grid_4.5.1             Rtsne_0.17             cluster_2.1.8.1       
-##  [73] reshape2_1.4.4         generics_0.1.4         hdf5r_1.3.12          
-##  [76] gtable_0.3.6           spatstat.data_3.1-9    tzdb_0.5.0            
-##  [79] class_7.3-23           R.methodsS3_1.8.2      tidyr_1.3.1           
-##  [82] data.table_1.17.8      spatstat.geom_3.6-0    RcppAnnoy_0.0.22      
-##  [85] ggrepel_0.9.6          RANN_2.6.2             pillar_1.11.1         
-##  [88] stringr_1.6.0          spam_2.11-1            RcppHNSW_0.6.0        
-##  [91] later_1.4.4            splines_4.5.1          dplyr_1.1.4           
-##  [94] lattice_0.22-7         survival_3.8-3         bit_4.6.0             
-##  [97] deldir_2.0-4           tidyselect_1.2.1       miniUI_0.1.2          
-## [100] pbapply_1.7-4          knitr_1.50             gridExtra_2.3         
-## [103] scattermore_1.2        xfun_0.54              matrixStats_1.5.0     
-## [106] stringi_1.8.7          lazyeval_0.2.2         yaml_2.3.10           
-## [109] evaluate_1.0.5         codetools_0.2-20       tibble_3.3.0          
-## [112] cli_3.6.5              uwot_0.2.4             systemfonts_1.3.1     
-## [115] arrow_22.0.0           xtable_1.8-4           reticulate_1.44.0     
-## [118] jquerylib_0.1.4        Rcpp_1.1.0             globals_0.18.0        
-## [121] spatstat.random_3.4-2  png_0.1-8              ggrastr_1.0.2         
-## [124] spatstat.univar_3.1-4  parallel_4.5.1         assertthat_0.2.1      
-## [127] dotCall64_1.2          listenv_0.10.0         viridisLite_0.4.2     
-## [130] e1071_1.7-16           scales_1.4.0           ggridges_0.5.7        
-## [133] purrr_1.2.0            rlang_1.1.6            cowplot_1.2.0         
-## [136] formatR_1.14
+##   [1] RColorBrewer_1.1-3     jsonlite_2.0.0         magrittr_2.0.5        
+##   [4] spatstat.utils_3.2-5   farver_2.1.2           rmarkdown_2.32        
+##   [7] ragg_1.5.2             vctrs_0.7.3            ROCR_1.0-12           
+##  [10] spatstat.explore_3.8-2 htmltools_0.5.9        sass_0.4.10           
+##  [13] sctransform_0.4.3      parallelly_1.50.0      KernSmooth_2.23-27    
+##  [16] bslib_0.12.0           htmlwidgets_1.6.4      ica_1.0-3             
+##  [19] plyr_1.8.9             plotly_4.12.1          zoo_1.9-0             
+##  [22] cachem_1.1.0           igraph_2.3.4           mime_0.13             
+##  [25] lifecycle_1.0.5        pkgconfig_2.0.3        Matrix_1.7-6          
+##  [28] R6_2.6.1               fastmap_1.2.0          fitdistrplus_1.2-6    
+##  [31] shiny_1.14.0           digest_0.6.39          patchwork_1.3.2       
+##  [34] tensor_1.5.1           RSpectra_0.16-2        irlba_2.4.1           
+##  [37] textshaping_1.0.5      labeling_0.4.3         progressr_1.1.0       
+##  [40] spatstat.sparse_3.2-0  httr_1.4.9             polyclip_1.10-7       
+##  [43] abind_1.4-8            compiler_4.4.3         proxy_0.4-29          
+##  [46] bit64_4.8.6            withr_3.0.3            S7_0.2.2              
+##  [49] DBI_1.3.0              fastDummies_1.7.6      MASS_7.3-66           
+##  [52] classInt_0.4-11        units_1.0-1            tools_4.4.3           
+##  [55] lmtest_0.9-40          otel_0.2.0             httpuv_1.6.17         
+##  [58] future.apply_1.21.0    goftest_1.2-3          glue_1.8.1            
+##  [61] nlme_3.1-170           promises_1.5.0         grid_4.4.3            
+##  [64] sf_1.1-3               Rtsne_0.17             cluster_2.1.8.3       
+##  [67] reshape2_1.4.5         generics_0.1.4         hdf5r_1.3.16          
+##  [70] gtable_0.3.6           spatstat.data_3.1-9    class_7.3-24          
+##  [73] tidyr_1.3.2            data.table_1.18.6.1    spatstat.geom_3.8-2   
+##  [76] RcppAnnoy_0.0.23       ggrepel_0.9.8          RANN_2.6.2            
+##  [79] pillar_1.11.1          stringr_1.6.0          spam_2.11-4           
+##  [82] RcppHNSW_0.7.0         later_1.4.8            splines_4.4.3         
+##  [85] dplyr_1.2.1            lattice_0.23-1         survival_3.8-12       
+##  [88] bit_4.6.0              deldir_2.0-4           tidyselect_1.2.1      
+##  [91] miniUI_0.1.2           pbapply_1.7-4          knitr_1.52            
+##  [94] gridExtra_2.3.1        scattermore_1.2        xfun_0.61             
+##  [97] matrixStats_1.5.0      stringi_1.8.9          yaml_2.3.12           
+## [100] evaluate_1.0.5         codetools_0.2-20       tibble_3.3.1          
+## [103] cli_3.6.6              uwot_0.2.5             arrow_25.0.1          
+## [106] xtable_1.8-8           reticulate_1.47.0      systemfonts_1.3.2     
+## [109] jquerylib_0.1.4        Rcpp_1.1.2             globals_0.20.0        
+## [112] spatstat.random_3.5-1  png_0.1-9              spatstat.univar_3.2-0 
+## [115] parallel_4.4.3         assertthat_0.2.1       dotCall64_1.2         
+## [118] listenv_1.1.0          viridisLite_0.4.3      scales_1.4.0          
+## [121] ggridges_0.5.7         e1071_1.7-17           purrr_1.2.2           
+## [124] rlang_1.3.0            cowplot_1.2.0          formatR_1.14
 ```
 
 </details>
